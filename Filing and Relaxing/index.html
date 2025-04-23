@@ -1,0 +1,37 @@
+# === index.html (Frontend) ===
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Emotion Detection Relaxation</title>
+</head>
+<body>
+  <h1>Emotion-Based Relaxing Audio</h1>
+  <audio id="audio-player" controls autoplay>
+    <source src="/static/audio/neutral.mp3" type="audio/mpeg">
+    Your browser does not support the audio element.
+  </audio>
+
+  <script>
+    let currentEmotion = "";
+    async function pollEmotion() {
+      try {
+        const response = await fetch('/get_audio/', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ emotion: currentEmotion })
+        });
+        const data = await response.json();
+        const audio = document.getElementById('audio-player');
+        if (audio.src !== location.origin + data.audio_url) {
+          audio.src = data.audio_url;
+          audio.play();
+        }
+      } catch (err) {
+        console.log('Error fetching audio:', err);
+      }
+    }
+    setInterval(pollEmotion, 5000); // Poll every 5 seconds
+  </script>
+</body>
+</html>
